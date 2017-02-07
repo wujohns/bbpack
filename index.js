@@ -21,61 +21,74 @@ const watchify = require('watchify');
 const lessModulesify = require('less-modulesify');
 
 class BBPack {
-    /**
-     * normal js operation(uglify and sourcemap)
-     * @param {Object} stream - gulp stream
-     * @param {Object} config - config
-     * @return {Object} - the gulp stream after transform
-     * @private
-     */
-    static _commonTransform (stream, config) {
-        if (_.get(config, 'sourcemap')) stream = stream.pipe(sourcemaps.init({ loadMaps: true }));
-        if (_.get(config, 'uglify')) stream = stream.pipe(uglify());
-        if (_.get(config, 'sourcemap')) stream = stream.pipe(sourcemaps.write('./'));
-        return stream;
+    constructor (config) {
+        // default support es6\7 and react and css-module in less
+        const defaultTransforms = [
+            {
+                transform: babelify,
+                config: {
+                    presets: ['es2015', 'react', 'stage-3']
+                }
+            },
+            {
+                plugin: lessModulesify,
+                config: {
+                    sourceMap: config.sourceMap,
+                    lessCompileOption: {}
+                }
+            }
+        ];
+
+        this._transforms = config.transforms ? config.transforms : defaultTransforms;
+        this._sourceMap = config.sourceMap;
+        this._uglify = config.uglify;
     }
 
     /**
-     * //TODO to support custom browserify's transform and plugin config
      * browserify's transform
      * @param {Object} stream - browserify stream
      * @param {Object} savePath - target file's path(includes the filename)
      * @return {Object} - gulp stream after transform
      * @private
      */
-    static _browserifyTransform (stream, savePath) {
-        return stream
-            .transform(babelify, {
-                presets: [
-                    'es2015',   // 对 es6 代码的转换
-                    'react',    // 对 jsx 的转换
-                    'stage-3'   // 对 es7 代码的转换（启用ES7 async支持）
-                ],
-                plugins: [
-                    'transform-object-assign'   // 转换 es6 Object.assign插件
-                ]
-            })
-            .plugin(lessModulesify, {
-                lessCompileOption: {}
-            })
+    _browserifyTransform (stream, savePath) {
+        _.forEach(this._transforms, (transform) => {
+            if (transform.transform) {
+                stream = stream.transform(transform.transform, transform.config);
+            } else if (transform.plugin) {
+                stream = stream.plugin(transform.plugin, transform.config);
+            }
+        });
+
+        stream = stream
             .bundle()
             .pipe(source(savePath))
             .pipe(buffer());
+
+        if (this._sourceMap) stream = stream.pipe(sourcemaps.init({ loadMaps: true }));
+        if (this._uglify) stream = stream.pipe(uglify());
+        if (this._sourceMap) stream = stream.pipe(sourcemaps.write('./'));
+
+        return stream;
     }
 
     /**
      * packing the libs which are used in most parts
      * @param {Object} config - pack config
+     * @public
      */
-    static libPack (config) {
+    libsPack (config) {
 
     }
 
     /**
      * packing the js files which are used for the pages
      * @param {Object} config - pack config
+     * @public
      */
-    static pagePack (config) {
+    pagesPack (config) {
 
     }
 }
+
+module.exports = BBPack;
