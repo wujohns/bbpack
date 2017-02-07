@@ -30,6 +30,9 @@ class BBPack {
      * @constructor
      */
     constructor (config) {
+        if (!config) {
+            config = {};
+        }
         // default support es6\7 and react and css-module in less
         const defaultTransforms = [
             {
