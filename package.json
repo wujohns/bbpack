@@ -1,0 +1,48 @@
+{
+  "name": "bbpack",
+  "version": "0.0.1",
+  "author": "wujohns",
+  "description": "module bundler with simple configure which based on browserify",
+  "homepage": "https://github.com/wujohns/bbpack",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wujohns/bbpack.git"
+  },
+  "keywords": [
+    "browserify",
+    "pack",
+    "module",
+    "bundler",
+    "cmd",
+    "bb"
+  ],
+  "bugs": {
+    "url": "https://github.com/wujohns/bbpack/issues"
+  },
+  "scripts": {
+    "test": ""
+  },
+  "engine": {
+    "node": ">=4.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.2",
+    "async": "^2.1.4",
+    "globby": "~6.0.0",
+    "gulp": "~3.9.1",
+    "gulp-util": "^3.0.7",
+    "gulp-sourcemaps": "~2.2.0",
+    "gulp-uglify": "~2.0.0",
+    "browserify": "~13.1.1",
+    "vinyl-source-stream": "~1.1.0",
+    "vinyl-buffer": "~1.0.0",
+    "babelify": "~7.3.0",
+    "watchify": "^3.7.0",
+    "less-modulesify": "^1.0.9"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0",
+    "chai": "^3.5.0"
+  }
+}
