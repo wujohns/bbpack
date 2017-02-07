@@ -1,4 +1,4 @@
-// TODO If it's nessary, seperate some logic to lib folder
+// TODO 对默认的案例进行测试，主要是lessModulesify与babelify的前后顺序问题
 'use strict';
 
 // base utils
@@ -21,6 +21,14 @@ const watchify = require('watchify');
 const lessModulesify = require('less-modulesify');
 
 class BBPack {
+    /**
+     * @param {Object}  config - pack config
+     * @param {Array}   config.transforms - browserify's transforms and plugins list
+     * @param {Boolean} config.sourceMap - using sourceMap or not
+     * @param {Boolean} config.uglify - uglify code or not
+     * @param {Boolean} config.watch - auto building when file changes or not
+     * @constructor
+     */
     constructor (config) {
         // default support es6\7 and react and css-module in less
         const defaultTransforms = [
@@ -39,9 +47,10 @@ class BBPack {
             }
         ];
 
-        this._transforms = config.transforms ? config.transforms : defaultTransforms;
-        this._sourceMap = config.sourceMap;
-        this._uglify = config.uglify;
+        this._transforms = _.get(config, 'transforms', defaultTransforms);
+        this._sourceMap = _.get(config, 'sourceMap', false);
+        this._uglify = _.get(config, 'uglify', false);
+        this._watch = _.get(config, 'watch', false);
     }
 
     /**
@@ -70,6 +79,24 @@ class BBPack {
         if (this._sourceMap) stream = stream.pipe(sourcemaps.write('./'));
 
         return stream;
+    }
+
+    /**
+     * multy streams' end events together
+     * @param {String} taskName - stream's flag or custom name
+     * @param {Array} streams - target streams
+     * @param {Function} callback - callback function
+     * @private
+     */
+    _streamsEndListening (taskName, streams, callback) {
+        async.each(streams, (stream, callback) => {
+            stream.on('end', () => {
+                return callback();
+            });
+        }, () => {
+            console.log(`${ taskName } finished`);
+            return callback();
+        });
     }
 
     /**
