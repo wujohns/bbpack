@@ -97,9 +97,9 @@ class BBPack {
             stream.on('end', () => {
                 return callback();
             });
-        }, () => {
+        }, (err) => {
             console.log(`${ taskName } finished`);
-            return callback();
+            return callback(err);
         });
     }
 
