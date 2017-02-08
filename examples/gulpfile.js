@@ -6,14 +6,37 @@ const browserify = require('browserify');
 
 const BBPack = require('../index');
 const bbpack = new BBPack({
-    uglify: true,
+    // uglify: true,
     sourceMap: true,
     watch: true
 });
+const libsConfig = {
+    libs: [
+        { src: 'react', expose: 'react' },
+        { src: 'react-dom', expose: 'react-dom' },
+        { src: './src/selfLib.js', expose: 'selfLib' }
+    ],
+    savePath: './public/libs.js'
+};
+const pagesConfig = {
+    pages: [
+        { path: './public/bundle.js', parts: ['./src/src.js'] }
+    ],
+    externals: ['react', 'react-dom', 'selfLib']
+};
 
-const stream = browserify({
-    entries: ['./src.js'],
-    debug: true
+gulp.task('libsPack', (callback) => {
+    bbpack.libsPack(libsConfig, callback);
 });
 
-bbpack._browserifyTransform(stream, './bundle.js');
+gulp.task('pagesPack', (callback) => {
+    bbpack.pagesPack(pagesConfig, callback);
+});
+
+gulp.task('build', ['libsPack', 'pagesPack']);
+
+gulp.task('watch', () => {
+    gulp.watch(['./src/src.js', './src/selfLib.js'], () => {
+        console.log('changing--------');
+    })
+});

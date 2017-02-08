@@ -36,16 +36,16 @@ class BBPack {
         // default support es6\7 and react and css-module in less
         const defaultTransforms = [
             {
-                transform: babelify,
-                config: {
-                    presets: ['es2015', 'react', 'stage-3']
-                }
-            },
-            {
                 plugin: lessModulesify,
                 config: {
                     sourceMap: config.sourceMap,
                     lessCompileOption: {}
+                }
+            },
+            {
+                transform: babelify,
+                config: {
+                    presets: ['es2015', 'react', 'stage-3']
                 }
             }
         ];
@@ -64,24 +64,25 @@ class BBPack {
      * @private
      */
     _browserifyTransform (stream, savePath) {
+        let tmpStream = stream;
         _.forEach(this._transforms, (transform) => {
             if (transform.transform) {
-                stream = stream.transform(transform.transform, transform.config);
+                tmpStream = tmpStream.transform(transform.transform, transform.config);
             } else if (transform.plugin) {
-                stream = stream.plugin(transform.plugin, transform.config);
+                tmpStream = tmpStream.plugin(transform.plugin, transform.config);
             }
         });
 
-        stream = stream
+        tmpStream = tmpStream
             .bundle()
             .pipe(source(savePath))
             .pipe(buffer());
 
-        if (this._sourceMap) stream = stream.pipe(sourcemaps.init({ loadMaps: true }));
-        if (this._uglify) stream = stream.pipe(uglify());
-        if (this._sourceMap) stream = stream.pipe(sourcemaps.write('./'));
+        if (this._sourceMap) tmpStream = tmpStream.pipe(sourcemaps.init({ loadMaps: true }));
+        if (this._uglify) tmpStream = tmpStream.pipe(uglify());
+        if (this._sourceMap) tmpStream = tmpStream.pipe(sourcemaps.write('./'));
 
-        return stream.pipe(gulp.dest('./'));
+        return tmpStream.pipe(gulp.dest('./'));
     }
 
     /**
@@ -126,7 +127,9 @@ class BBPack {
             // TODO add auto reload feature
         }
 
-        let stream = browserify();
+        let stream = browserify({
+            debug: this._sourceMap
+        });
         if (this._watch) {
             stream = stream.plugin(watchify);
             stream.on('update', () => bundle(stream));
@@ -150,7 +153,8 @@ class BBPack {
         pages.forEach((page) => {
             let addListener = false;
             const bundle = (stream) => {
-                let tmpStream = stream.external(externals);
+                let tmpStream = stream;
+                tmpStream = tmpStream.external(externals);
                 tmpStream = this._browserifyTransform(tmpStream, page.path);
                 if (!addListener) {
                     streams.push(tmpStream);
@@ -162,7 +166,7 @@ class BBPack {
             globby(page.parts).then((entries) => {
                 let stream = browserify({
                     entries: entries,
-                    debug: true
+                    debug: this._sourceMap
                 });
                 if (this._watch) {
                     stream = stream.plugin(watchify);

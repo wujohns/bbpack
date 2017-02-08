@@ -2,6 +2,7 @@
 
 const React = require('react');
 const ReactDOM = require('react-dom');
+const selfLib = require('selfLib');
 const style = require('./style.less');
 
 const Todo = () => {
@@ -10,7 +11,8 @@ const Todo = () => {
     );
 };
 
-console.log('lol');
+console.log('lollxlllpppp');
+selfLib.fn();
 
 ReactDOM.render(
     <Todo></Todo>,
