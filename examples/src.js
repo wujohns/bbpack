@@ -10,6 +10,8 @@ const Todo = () => {
     );
 };
 
+console.log('lol');
+
 ReactDOM.render(
     <Todo></Todo>,
     document.getElementById('title')

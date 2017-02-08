@@ -81,7 +81,7 @@ class BBPack {
         if (this._uglify) stream = stream.pipe(uglify());
         if (this._sourceMap) stream = stream.pipe(sourcemaps.write('./'));
 
-        return stream;
+        return stream.pipe(gulp.dest('./'));
     }
 
     /**
@@ -107,8 +107,34 @@ class BBPack {
      * @param {Object} config - pack config
      * @public
      */
-    libsPack (config) {
+    libsPack (config, callback) {
+        const libs = _.get(config, 'libs', []);
+        const savePath = _.get(config, 'savePath');
 
+        const streams = [];
+        let addListener = false;
+        const bundle = (stream) => {
+            let tmpStream = stream;
+            libs.forEach((lib) => {
+                tmpStream = tmpStream.require(lib.src, { expose: lib.expose });
+            });
+            tmpStream = this._browserifyTransform(tmpStream, savePath);
+            if (!addListener) {
+                streams.push(tmpStream);
+                addListener = true;
+            }
+            // TODO add auto reload feature
+        }
+
+        let stream = browserify();
+        if (this._watch) {
+            stream = stream.plugin(watchify);
+            stream.on('update', () => bundle(stream));
+            stream.on('log', gutil.log);
+        }
+        bundle(stream);
+
+        this._streamsEndListening('libsPack', streams, callback);
     }
 
     /**
@@ -116,8 +142,37 @@ class BBPack {
      * @param {Object} config - pack config
      * @public
      */
-    pagesPack (config) {
+    pagesPack (config, callback) {
+        const pages = _.get(config, 'pages', []);
+        const externals = _.get(config, 'externals', []);
 
+        const streams = [];
+        pages.forEach((page) => {
+            let addListener = false;
+            const bundle = (stream) => {
+                let tmpStream = stream.external(externals);
+                tmpStream = this._browserifyTransform(tmpStream, page.path);
+                if (!addListener) {
+                    streams.push(tmpStream);
+                    addListener = true;
+                }
+                // TODO add reload feature
+            };
+
+            globby(page.parts).then((entries) => {
+                let stream = browserify({
+                    entries: entries,
+                    debug: true
+                });
+                if (this._watch) {
+                    stream = stream.plugin(watchify);
+                    stream.on('update', () => bundle(stream));
+                    stream.on('log', gutil.log);
+                }
+                bundle(stream);
+            });
+        });
+        this._streamsEndListening('pagesPack', streams, callback);
     }
 }
 
