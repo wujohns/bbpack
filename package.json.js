@@ -6,7 +6,7 @@
 const packageConfig = {
     // 基础说明配置
     name: 'bbpack',
-    version: '0.2.0',
+    version: '0.2.1',
     author: 'wujohns',
     description: 'module bundler with simple configure which based on browserify',
     homepage: 'https://github.com/wujohns/bbpack',
@@ -38,7 +38,7 @@ const packageConfig = {
      * scripts
      */
     scripts: {
-        test: ''
+        test: './node_modules/mocha/bin/mocha ./test/build.test.js'
     },
 
     engine: {
@@ -71,7 +71,8 @@ const packageConfig = {
         'mocha': '^3.2.0',
         'chai': '^3.5.0',
         'react': '^15.3.2',
-        'react-dom': '^15.3.2'
+        'react-dom': '^15.3.2',
+        'rimraf': '^2.5.4'
     }
 };
 

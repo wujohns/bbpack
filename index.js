@@ -159,7 +159,7 @@ class BBPack {
         const externals = _.get(config, 'externals', []);
 
         const streams = [];
-        pages.forEach((page) => {
+        async.each(pages, (page, callback) => {
             let addListener = false;
             const bundle = (stream) => {
                 let tmpStream = stream;
@@ -182,9 +182,11 @@ class BBPack {
                     stream.on('log', gutil.log);
                 }
                 bundle(stream);
+                return callback();
             });
+        }, () => {
+            this._streamsEndListening('pagesPack', streams, callback);
         });
-        this._streamsEndListening('pagesPack', streams, callback);
     }
 }
 
