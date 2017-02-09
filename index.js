@@ -1,4 +1,3 @@
-// TODO 对默认的案例进行测试，主要是lessModulesify与babelify的前后顺序问题
 'use strict';
 
 // base utils
@@ -54,6 +53,7 @@ class BBPack {
         this._sourceMap = _.get(config, 'sourceMap', false);
         this._uglify = _.get(config, 'uglify', false);
         this._watch = _.get(config, 'watch', false);
+        this._afterPipes = _.get(config, 'afterPipes', []);
     }
 
     /**
@@ -65,6 +65,8 @@ class BBPack {
      */
     _browserifyTransform (stream, savePath) {
         let tmpStream = stream;
+
+        // using custom transform or default transform for browserify
         _.forEach(this._transforms, (transform) => {
             if (transform.transform) {
                 tmpStream = tmpStream.transform(transform.transform, transform.config);
@@ -73,20 +75,28 @@ class BBPack {
             }
         });
 
+        // transform browserify formed stream to glup formed stream
         tmpStream = tmpStream
             .bundle()
             .pipe(source(savePath))
             .pipe(buffer());
 
-        if (this._sourceMap) tmpStream = tmpStream.pipe(sourcemaps.init({ loadMaps: true }));
-        if (this._uglify) tmpStream = tmpStream.pipe(uglify());
-        if (this._sourceMap) tmpStream = tmpStream.pipe(sourcemaps.write('./'));
+        // sourcemap and uglify
+        this._sourceMap && (tmpStream = tmpStream.pipe(sourcemaps.init({ loadMaps: true })));
+        this._uglify && (tmpStream = tmpStream.pipe(uglify()));
+        this._sourceMap && (tmpStream = tmpStream.pipe(sourcemaps.write('./')));
 
-        return tmpStream.pipe(gulp.dest('./'));
+        // custom after pipe, default do nothing
+        tmpStream = tmpStream.pipe(gulp.dest('./'));
+        _.forEach(this._afterPipes, (afterPipe) => {
+            tmpStream = tmpStream.pipe(afterPipe.stream(afterPipe.config));
+        });
+
+        return tmpStream;
     }
 
     /**
-     * multy streams' end events together
+     * multy streams' end-events together
      * @param {String} taskName - stream's flag or custom name
      * @param {Array} streams - target streams
      * @param {Function} callback - callback function
@@ -124,8 +134,7 @@ class BBPack {
                 streams.push(tmpStream);
                 addListener = true;
             }
-            // TODO add auto reload feature
-        }
+        };
 
         let stream = browserify({
             debug: this._sourceMap
@@ -160,7 +169,6 @@ class BBPack {
                     streams.push(tmpStream);
                     addListener = true;
                 }
-                // TODO add reload feature
             };
 
             globby(page.parts).then((entries) => {
