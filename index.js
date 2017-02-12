@@ -103,6 +103,9 @@ class BBPack {
      * @private
      */
     _streamsEndListening (taskName, streams, callback) {
+        if (!callback) {
+            callback = () => {};
+        }
         async.each(streams, (stream, callback) => {
             stream.on('end', () => {
                 return callback();
