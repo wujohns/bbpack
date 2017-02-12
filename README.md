@@ -65,7 +65,6 @@ var bbpack = new BBPack({
 ```
 bbpack.pagesPack(pagesConfig, callback)
 ```
-Pack the js files for pages.  
 ***pagesConfig***  
 Object
 
