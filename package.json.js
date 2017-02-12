@@ -6,7 +6,7 @@
 const packageConfig = {
     // 基础说明配置
     name: 'bbpack',
-    version: '0.2.2',
+    version: '0.2.3',
     author: 'wujohns',
     description: 'module bundler with simple configure which based on browserify',
     homepage: 'https://github.com/wujohns/bbpack',
