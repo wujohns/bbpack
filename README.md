@@ -83,7 +83,7 @@ bbpack.libsPack(libsConfig, callback)
 ***libsConfig***  
 Object
 
-***callback***
+***callback***  
 Function, default `() => {}`
 
 `libsConfig.libs` is an array.  
