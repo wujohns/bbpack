@@ -66,7 +66,7 @@ var bbpack = new BBPack({
 bbpack.pagesPack(pagesConfig, callback)
 ```
 Pack the js files for pages.  
-***pagesConfig*** 
+***pagesConfig***  
 Object
 
 ***callback***  
@@ -81,16 +81,16 @@ Function, default `() => {}`
 bbpack.libsPack(libsConfig, callback)
 ```
 
-***libsConfig****
+***libsConfig***  
 Object
 
 ***callback***
 Function, default `() => {}`
 
-`libsConfig.libs` is an array.
-`libsConfig.libs[].src` is a string. The node_module's name or the package's path
-`libsConfig.libs[].expose` is a string. Custom the package's name
-`libsConfig.savePath` is a string. The libs save path after packed
+`libsConfig.libs` is an array.  
+`libsConfig.libs[].src` is a string. The node_module's name or the package's path  
+`libsConfig.libs[].expose` is a string. Custom the package's name  
+`libsConfig.savePath` is a string. The libs save path after packed  
 
 ## Examples  
 
