@@ -6,7 +6,7 @@
 const packageConfig = {
     // 基础说明配置
     name: 'bbpack',
-    version: '0.2.3',
+    version: '0.2.4',
     author: 'wujohns',
     description: 'module bundler with simple configure which based on browserify',
     homepage: 'https://github.com/wujohns/bbpack',
@@ -64,7 +64,8 @@ const packageConfig = {
         'babelify': '~7.3.0',               // babel for browserfiy
         'babel-preset-es2015': '~6.18.0',   // es6 support
         'babel-preset-react': '~6.16.0',    // react support
-        'babel-preset-stage-3': '~6.17.0'   // es7 support(stage-3)
+        'babel-preset-stage-3': '~6.17.0',  // es7 support(stage-3)
+        'babel-plugin-syntax-export-extensions': '^6.13.0',  // 对export方面的扩展
     },
 
     devDependencies: {

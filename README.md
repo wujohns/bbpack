@@ -47,7 +47,8 @@ CMD ....
 	{
 	    transform: require('babelify'),
 	    config: {
-	        presets: ['es2015', 'react', 'stage-3']
+	        presets: ['es2015', 'react', 'stage-3'],
+	        plugins: ['syntax-export-extensions']
 	    }
 	}
 ]
